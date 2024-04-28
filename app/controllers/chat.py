@@ -1,5 +1,7 @@
 from app.tools import cancel_order, view_product_details, search_products, recommend_orders, add_to_cart
 from app.prompts.prompttemplate import main_qa_prompt
+from app.models.db_helpers import insert_or_get_conversation, insert_message
+from app.helpers.helpers import extract_user_chat_data
 from vertexai.generative_models import Tool, GenerativeModel, GenerationConfig, Part
 
 retail_tool = Tool(
@@ -47,7 +49,7 @@ def handle_function_calling(api_response):
                 ),
             )
             api_response = response.candidates[0].content.parts[0]
-
+            
         if hasattr(api_response, "text"):
             print("Final Response")
             return api_response, False
@@ -58,30 +60,14 @@ def handle_function_calling(api_response):
     except Exception as e:
         print(f"Exception occurred: {e}")
         return None, False
-    
-conversation_collection = db['conversation']
-message_collection = db['message']
-
-def insert_conversation(user_id, user_ph_number):
-    conversation = {
-        'user_id': user_id,
-        'time': datetime.now(),
-        'user_ph_number': user_ph_number
-    }
-    result = conversation_collection.insert_one(conversation)
-    return str(result.inserted_id)
-
-def insert_message(role, text, conv_id, user_id):
-    message = {
-        'role': role,
-        'text': text,
-        'conv_id': conv_id,
-        'user_id': user_id
-    }
-    result = message_collection.insert_one(message)
-    return str(result.inserted_id)
-
+        
 def chat_agent(params):
+    user_id = "1234"
+    user_phone = "555-1234"
+    conv_id = insert_or_get_conversation(user_id, user_phone)
+    # message_id = insert_message('user', 'Hello, this is a test message.', conv_id, user_id)
+    print(f"Conversation ID: {conv_id}")
+    
     prompt = params["input"]
     response = chat.send_message(prompt)
     api_response = response.candidates[0].content.parts[0]
@@ -98,5 +84,6 @@ def chat_agent(params):
             if not is_function_call:
                 break
 
-    print(f"Chat history: {chat.history}")
+    print(f"Chat history: {extract_user_chat_data(chat_history=chat.history)}")
+    
     return resp
