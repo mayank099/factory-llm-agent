@@ -1,6 +1,7 @@
 # app/helpers.py
 import logging
 from datetime import datetime
+import json
 
 logger = logging.getLogger(__name__)  # get a logger instance
 
@@ -11,14 +12,16 @@ def handle_response(data, status_code=200):
         "status": status_code
     }
 
-def extract_user_chat_data(chat_history):
-    extracted_data = []
-    for entry in chat_history:
-        role = entry.role
-        parts = entry.parts
-        timestamp = datetime.now()
-        for part in parts:
-            if hasattr(part, 'text'):
-                text = part.text
-                extracted_data.append((role, text, timestamp))
-    return extracted_data
+def extract_chat_history(chat_history, conv_id, user_id):
+    print(f"Chat History: {chat_history}")
+    history = []
+    for content in chat_history:
+        # print(content.role, "->", [type(part).to_dict(part) for part in content.parts])
+        history.append({
+            "role" : content.role,
+            "parts" : type(content.parts[0]).to_dict(content.parts[0]),
+            "user_id": user_id,
+            "convo_id": conv_id,
+            "timestamp": datetime.now()
+        })
+    return history

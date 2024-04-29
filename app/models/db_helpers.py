@@ -1,6 +1,8 @@
 from datetime import datetime
 from app.models.models import conversation_collection, message_collection
-from app.helpers.helpers import extract_user_chat_data
+from app.helpers.helpers import extract_chat_history
+from vertexai.generative_models._generative_models import Content
+from vertexai.generative_models._generative_models import Part
 
 def insert_or_get_conversation(user_id, user_ph_number):
     existing_conversation = conversation_collection.find_one({'user_id': user_id})
@@ -22,32 +24,24 @@ def insert_or_get_conversation(user_id, user_ph_number):
 
 def insert_chat_history(user_id, user_ph_number, chat_history):
     conv_id = insert_or_get_conversation(user_id, user_ph_number)
-    extracted_data = extract_user_chat_data(chat_history)    
-    
-    for role, text, timestamp in extracted_data:
-        existing_message = message_collection.find_one({
-            'role': role,
-            'text': text,
-            'conv_id': conv_id,
-            'user_id': user_id,
-            'timestamp': timestamp
-        })
+    extracted_history = extract_chat_history(chat_history, conv_id, user_id)        
+    try:
+        message_collection.insert_many(extracted_history)
+    except Exception as e:
+        print(f"Error inserting message: {str(e)}")
+            
 
-        if not existing_message:
-            message = {
-                'role': role,
-                'text': text,
-                'conv_id': conv_id,
-                'user_id': user_id,
-                'timestamp': timestamp
-            }
-            try:
-                result = message_collection.insert_one(message)
-                print(f"Inserted message: {result.inserted_id}")
-            except Exception as e:
-                print(f"Error inserting message: {str(e)}")
-
-def get_chat_history(user_id):
+def get_chat_history(chat, user_id):
     messages = message_collection.find({'user_id': user_id}).sort('timestamp', 1)
-    chat_history = [(msg['role'], msg['text'], msg['timestamp']) for msg in messages]
-    return chat_history
+    # for message in messages:
+    #     print(f"Message {message}")
+    #     if message.role == "user":
+    #         if hasattr(message.parts, 'text'):
+    #             Part.from_text(message.parts.text)
+    #         if hasattr(message.parts, 'function_response'):
+    #             Part.from_function_response(message.parts.function_response)
+    #         if hasattr(message.parts, 'function_response'):
+    #     # Part.from_text('SYSTEM_INSTRUCTION')
+    #     # user_message = Content(role="user", parts=[system_inst_part])
+    #     # chat.append(message)
+    return chat
