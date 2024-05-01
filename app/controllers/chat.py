@@ -62,15 +62,12 @@ def chat_agent(params):
     chat = model.start_chat()
     user_id = "user1234"
     chat_history = get_chat_history(chat, user_id)
-
+    
     # Append chat_history to chat.history if length is greater than 0
     if len(chat_history) > 0:
         chat.history.extend(chat_history)
-        
-    # for content in chat_history:
-    #     print(content.role, "->", [type(part).to_dict(part) for part in content.parts])
-    #     print('-'*80)
-        
+    chat_history_len = len(chat.history)
+            
     user_phone = "555-51234"
     resp = ""
     prompt = params["input"]
@@ -87,8 +84,9 @@ def chat_agent(params):
                 resp = api_response.text
             if not is_function_call:
                 break
-            
-    insert_chat_history(user_id, user_phone, chat.history)
+    
+    recent_chat_history = chat.history[chat_history_len:]
+    insert_chat_history(user_id, user_phone, recent_chat_history)
     return {
         "response": resp,
         "chat_history": [type(content).to_dict(content) for content in chat.history],
