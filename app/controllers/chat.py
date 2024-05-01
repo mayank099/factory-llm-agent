@@ -23,10 +23,9 @@ model = GenerativeModel(
 def handle_function_calling(api_response, chat):
     try:
         function_name = api_response.function_call.name
+        
+        # TODO: Use when params is dynamic
         params = {key: value for key, value in api_response.function_call.args.items()}
-
-        # print(f"Function called: {function_name}")
-        # print(f"Parameters: {params}")
 
         api_response_new = None
 
@@ -51,10 +50,8 @@ def handle_function_calling(api_response, chat):
             api_response = response.candidates[0].content.parts[0]
          
         if hasattr(api_response, "text"):
-            print("Final Response")
             return api_response, False
         else:
-            print("Additional function call required")
             return api_response, True
 
     except Exception as e:
@@ -62,14 +59,18 @@ def handle_function_calling(api_response, chat):
         return None, False
         
 def chat_agent(params):
-    # Insert the Chat History in this Object, to keep the context
     chat = model.start_chat()
     user_id = "user1234"
-    # print("DB Customer Chat History:")
     chat_history = get_chat_history(chat, user_id)
-    # for role, text, timestamp in chat_history:
-    #     print(f"{timestamp} - {role}: {text}")
-    
+
+    # Append chat_history to chat.history if length is greater than 0
+    if len(chat_history) > 0:
+        chat.history.extend(chat_history)
+        
+    # for content in chat_history:
+    #     print(content.role, "->", [type(part).to_dict(part) for part in content.parts])
+    #     print('-'*80)
+        
     user_phone = "555-51234"
     resp = ""
     prompt = params["input"]
@@ -86,8 +87,6 @@ def chat_agent(params):
                 resp = api_response.text
             if not is_function_call:
                 break
-    
-    # Inserting/Updating Chat History
-    # chat_history = extract_user_chat_data(chat_history=chat.history)    
+            
     insert_chat_history(user_id, user_phone, chat.history)
     return resp

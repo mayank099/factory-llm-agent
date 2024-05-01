@@ -32,16 +32,23 @@ def insert_chat_history(user_id, user_ph_number, chat_history):
             
 
 def get_chat_history(chat, user_id):
+    chat_history = []
     messages = message_collection.find({'user_id': user_id}).sort('timestamp', 1)
-    # for message in messages:
-    #     print(f"Message {message}")
-    #     if message.role == "user":
-    #         if hasattr(message.parts, 'text'):
-    #             Part.from_text(message.parts.text)
-    #         if hasattr(message.parts, 'function_response'):
-    #             Part.from_function_response(message.parts.function_response)
-    #         if hasattr(message.parts, 'function_response'):
-    #     # Part.from_text('SYSTEM_INSTRUCTION')
-    #     # user_message = Content(role="user", parts=[system_inst_part])
-    #     # chat.append(message)
-    return chat
+    for message in messages:
+        print(f"Message -1 {message['parts']}")
+        sys_instruction = None
+
+        parts = message.get('parts', {})
+        if 'text' in parts and parts['text'] is not None:
+            sys_instruction = Part.from_text(parts['text'])
+        elif 'function_response' in parts and parts['function_response'] is not None:
+            sys_instruction = Part.from_function_response(name=parts['function_response']['name'], response=parts['function_response']['response'])
+        elif 'function_call' in parts and parts['function_call'] is not None:
+            sys_instruction = Part.from_dict({"function_call": parts['function_call']})
+
+        if sys_instruction is not None:
+            common_msg = Content(role=message['role'], parts=[sys_instruction])
+            chat_history.append(common_msg)
+        else:
+            print(f"Skipping message due to missing valid parts.")
+    return chat_history
