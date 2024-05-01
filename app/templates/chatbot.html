@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shopping Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    
+    .chatbot-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    .chatbot-header {
+      background-color: #000;
+      color: #fff;
+      padding: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+    }
+    
+    .chat-history {
+      height: 400px;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    
+    .message {
+      margin-bottom: 10px;
+      display: flex;
+    }
+    
+    .user-message {
+      justify-content: flex-end;
+    }
+    
+    .user-message .message-text {
+      background-color: #007bff;
+      color: #fff;
+      padding: 10px 15px;
+      border-radius: 20px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+    
+    .bot-message {
+      justify-content: flex-start;
+    }
+    
+    .bot-message .message-text {
+      background-color: #f1f1f1;
+      color: #333;
+      padding: 10px 15px;
+      border-radius: 20px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+    
+    .input-container {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-top: 1px solid #eee;
+    }
+    
+    .input-container input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 30px;
+      background-color: #f1f1f1;
+      font-size: 14px;
+      outline: none;
+    }
+    
+    .input-container button {
+      margin-left: 10px;
+      padding: 12px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      font-size: 14px;
+      cursor: pointer;
+      outline: none;
+    }
+    
+    .loading-icon {
+      display: none;
+      margin-left: 10px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #ccc;
+      border-top-color: #007bff;
+      animation: spin 1s infinite linear;
+    }
+    
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chatbot-container">
+    <div class="chatbot-header">
+      Shopping Chatbot
+    </div>
+    <div class="chat-history" id="chatHistory"></div>
+    <div class="input-container">
+      <input type="text" id="userInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+      <button onclick="sendMessage()">Send</button>
+      <div class="loading-icon" id="loadingIcon"></div>
+    </div>
+  </div>
+
+  <script>
+    // Get the chat history, user input, and loading icon elements
+    const chatHistory = document.getElementById('chatHistory');
+    const userInput = document.getElementById('userInput');
+    const loadingIcon = document.getElementById('loadingIcon');
+
+    // Function to send user message to the server and display the response
+    function sendMessage() {
+      const message = userInput.value;
+      if (message.trim() !== '') {
+        // Display user message in the chat history
+        displayUserMessage(message);
+
+        // Clear the user input
+        userInput.value = '';
+
+        // Show the loading icon
+        loadingIcon.style.display = 'block';
+
+        // Send the message to the server
+        fetch('/create_message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            input: message,
+            conversation_id: 'conv123',
+            user_id: 'user123',
+          }),
+        })
+          .then(response => response.json())
+          .then(data => {
+            // Hide the loading icon
+            loadingIcon.style.display = 'none';
+
+            // Display the agent's response in the chat history
+            displayAgentMessage(data.response);
+
+            // Scroll to the bottom of the chat history
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            // Hide the loading icon in case of an error
+            loadingIcon.style.display = 'none';
+          });
+      }
+    }
+
+    // Function to display user message in the chat history
+    function displayUserMessage(message) {
+      const userMessageElement = document.createElement('div');
+      userMessageElement.classList.add('message', 'user-message');
+      const userMessageText = document.createElement('span');
+      userMessageText.classList.add('message-text');
+      userMessageText.textContent = message;
+      userMessageElement.appendChild(userMessageText);
+      chatHistory.appendChild(userMessageElement);
+    }
+
+    // Function to display agent message in the chat history
+    function displayAgentMessage(message) {
+      const agentMessageElement = document.createElement('div');
+      agentMessageElement.classList.add('message', 'bot-message');
+      const agentMessageText = document.createElement('span');
+      agentMessageText.classList.add('message-text');
+      agentMessageText.textContent = message;
+      agentMessageElement.appendChild(agentMessageText);
+      chatHistory.appendChild(agentMessageElement);
+    }
+
+    // Function to handle Enter key press event
+    function handleKeyPress(event) {
+      if (event.keyCode === 13) {
+        sendMessage();
+      }
+    }
+  </script>
+</body>
+</html>

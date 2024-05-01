@@ -35,7 +35,6 @@ def get_chat_history(chat, user_id):
     chat_history = []
     messages = message_collection.find({'user_id': user_id}).sort('timestamp', 1)
     for message in messages:
-        print(f"Message -1 {message['parts']}")
         sys_instruction = None
 
         parts = message.get('parts', {})

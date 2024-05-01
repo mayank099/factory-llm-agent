@@ -89,4 +89,7 @@ def chat_agent(params):
                 break
             
     insert_chat_history(user_id, user_phone, chat.history)
-    return resp
+    return {
+        "response": resp,
+        "chat_history": [type(content).to_dict(content) for content in chat.history],
+    }

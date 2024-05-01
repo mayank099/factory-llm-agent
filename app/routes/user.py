@@ -1,9 +1,9 @@
 from app import app
 from app.controllers.controllers import create_conversation_helper
-from flask import request, jsonify
+from flask import request, jsonify, render_template
 import logging
+import os
 from app.controllers.chat import chat_agent
-import json
 
 logger = logging.getLogger(__name__)  # get a logger instance
 
@@ -13,22 +13,30 @@ def health_check():
     logger.info("Health check")
     return jsonify(success=True, message="Server working fine (-_-)")
 
+@app.route('/chatbot')
+def chatbot():
+    return render_template('chatbot.html')
+
 @app.route('/create_message', methods=['POST'])
 def create_message():
-    # Extract the data from the request
+    print("Request Received!!")
     input = request.json.get("input")
-    conversation_id = request.json.get("conversation_id")
-    user_id = request.json.get("user_id")
+    # conversation_id = request.json.get("conversation_id")
+    # user_id = request.json.get("user_id")
     
     params = {
         "input": input, 
-        "conversation_id": conversation_id,
-        "user_id": user_id
+        # "conversation_id": conversation_id,
+        # "user_id": user_id
     }
-
-    agent_response = chat_agent(params=params)
     
-    # return jsonify({"role": "assistant", "content":agent_response})
+    # Print Params with equals to sign
+    print("="*80)
+    print(params)
+    print("="*80)
+
+    
+    agent_response = chat_agent(params=params)
     return agent_response
 
 @app.route('/create_conversation', methods=['POST'])
