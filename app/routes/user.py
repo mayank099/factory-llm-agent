@@ -31,20 +31,4 @@ def create_message():
         
     agent_response = chat_agent(params=params)
     return agent_response
-
-@app.route('/create_conversation', methods=['POST'])
-def create_conversation():
-    # Extract the data from the request
-    data = request.json
-
-    # Retrieve the necessary fields from the POST data
-    user_phone = data.get('user_phone')
-    source = data.get('source')
-    try:
-        #conversation = create_conversation_helper(user_phone, source)
-        #return jsonify({"convo_id": str(conversation.inserted_id)}), 200
-        print("somethingh")
-    except Exception as e:
-        print(f"Invalid {e}")
-        return jsonify({"message": "User saved successfully"}), 200
     
