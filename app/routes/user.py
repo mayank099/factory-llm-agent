@@ -19,23 +19,16 @@ def chatbot():
 
 @app.route('/create_message', methods=['POST'])
 def create_message():
-    print("Request Received!!")
     input = request.json.get("input")
-    # conversation_id = request.json.get("conversation_id")
-    # user_id = request.json.get("user_id")
-    
-    params = {
-        "input": input, 
-        # "conversation_id": conversation_id,
-        # "user_id": user_id
-    }
-    
-    # Print Params with equals to sign
-    print("="*80)
-    print(params)
-    print("="*80)
+    user_id = request.json.get("user_id")
+    user_phone = request.json.get("user_phone")
 
-    
+    params = {
+        "input": input,
+        "user_id": user_id,
+        "user_phone" : user_phone
+    }
+        
     agent_response = chat_agent(params=params)
     return agent_response
 

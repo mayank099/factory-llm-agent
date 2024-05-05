@@ -12,6 +12,7 @@ def handle_response(data, status_code=200):
     }
 
 def extract_chat_history(chat_history, conv_id, user_id):
+    logger.info("Extracting chat history")
     history = []
     for content in chat_history:
         history.append({

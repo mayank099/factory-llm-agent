@@ -39,24 +39,6 @@ add_to_cart = FunctionDeclaration(
     },
 )
 
-recommend_orders = FunctionDeclaration(
-    name="recommend_orders",
-    description="Recommend orders based on order history or general popularity",
-    parameters={
-        "type": "object",
-        "properties": {
-            "category": {
-                "type": "string",
-                "description": "Product category to focus the recommendations on (optional)"
-            },
-            "max_items": {
-                "type": "number",
-                "description": "Maximum number of recommendations to return (optional)"
-            }
-        },
-        "required": []
-    },
-)
 
 search_products = FunctionDeclaration(
     name="search_products",

@@ -135,6 +135,23 @@
     const userInput = document.getElementById('userInput');
     const loadingIcon = document.getElementById('loadingIcon');
 
+    function generateRandomData() {
+        const characters = '0123456789';
+        let username = 'user';
+        for (let i = 0; i < 4; i++) {
+            username += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+
+        let phoneNumber = '+1';
+        for (let j = 0; j < 9; j++) {
+            phoneNumber += Math.floor(Math.random() * 10);
+        }
+
+        return { username, phoneNumber };
+    }
+
+    const { username, phoneNumber } = generateRandomData();
+
     // Function to send user message to the server and display the response
     function sendMessage() {
       const message = userInput.value;
@@ -148,6 +165,8 @@
         // Show the loading icon
         loadingIcon.style.display = 'block';
 
+        console.log(username, phoneNumber)
+
         // Send the message to the server
         fetch('/create_message', {
           method: 'POST',
@@ -156,8 +175,8 @@
           },
           body: JSON.stringify({
             input: message,
-            conversation_id: 'conv123',
-            user_id: 'user123',
+            user_id: username,
+            user_phone: phoneNumber
           }),
         })
           .then(response => response.json())
