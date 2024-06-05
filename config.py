@@ -14,6 +14,6 @@ print(f"Initializing the environment for Our Application Env :: {dotenv_path}")
 load_dotenv(dotenv_path)
 
 class Config:
-    MONGO_URI = os.getenv('MONGO_URI') or "mongodb+srv://mayankyadav0990:ul1Zb7zly1GLGX0P@agentcluster.joj7c.mongodb.net/?retryWrites=true&w=majority&appName=AgentCluster"
+    MONGO_URI = os.getenv('MONGO_URI') or "mongodb+srv://mayankyadav0990:<Password>@agentcluster.gu1bq8e.mongodb.net/?retryWrites=true&w=majority&appName=AgentCluster"
     DEBUG = True
     PROPAGATE_EXCEPTIONS = True
